@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>絶対音感チェッカー</title>
+    <style>
+      /*まずはお決まりのボックスサイズ算出をborer-boxに */
+      *,
+      *:before,
+      *:after {
+        -webkit-box-sizing: inherit;
+        box-sizing: inherit;
+      }
+
+      html {
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        font-size: 62.5%; /*rem算出をしやすくするために*/
+      }
+
+      .btn,
+      a.btn,
+      button.btn {
+        font-size: 1.6rem;
+        font-weight: 700;
+        line-height: 1.5;
+        position: relative;
+        display: inline-block;
+        padding: 1rem 4rem;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-transition: all 0.3s;
+        transition: all 0.3s;
+        text-align: center;
+        vertical-align: middle;
+        text-decoration: none;
+        letter-spacing: 0.1em;
+        color: #212529;
+        border-radius: 0.5rem;
+      }
+
+      .btn--orange,
+      a.btn--orange {
+        color: #fff;
+        background-color: #eb6100;
+      }
+      .btn--orange:hover,
+      a.btn--orange:hover {
+        color: #fff;
+        background: #f56500;
+      }
+    </style>
+  </head>
+  <body>
+    <label>答え</label>
+    <select name="audio" id="selector" required>
+      <option value="-1" hidden>Choose</option>
+    </select>
+    <input type="button" class="btn btn--orange" value="音を再生" onclick="play()" />
+    <input type="button" class="btn btn--orange" value="答えを送信" onclick="submit()" />
+    <input type="button" class="btn btn--orange" value="音を変更" onclick="randInit()" />
+
+    <noscript>JavaScriptを有効にしてください</noscript>
+  </body>
+  <script>
+    // https://developer.mozilla.org/ja/docs/Web/API/OscillatorNode
+    let Scale = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+    let frequency = [220, 233, 246, 261, 277, 293, 311, 329, 349, 369, 391, 415];
+    let rand = Math.floor(Math.random() * Scale.length);
+    let played = false;
+
+    const play = () => {
+      played = true;
+      let ctx = new AudioContext();
+
+      let osc = ctx.createOscillator();
+
+      osc.frequency.value = frequency[rand];
+      console.log(frequency[rand]);
+      osc.type = "sine";
+      osc.connect(ctx.destination);
+      osc.start(0);
+      osc.stop(3);
+    };
+
+    const submit = () => {
+      if (!played) {
+        alert("音を再生してください");
+        return;
+      }
+      let answer = document.querySelector("#selector").value;
+
+      if (answer == -1) {
+        alert("答えを選択してください");
+        return;
+      }
+
+      if (answer == rand) {
+        alert("正解");
+      } else {
+        alert("不正解");
+      }
+    };
+
+    const randInit = () => {
+      rand = Math.floor(Math.random() * Scale.length);
+      played = false;
+      alert("音を変更しました");
+    };
+
+    let selector = document.querySelector("#selector");
+
+    for (let i = 0; i < Scale.length; i++) {
+      let option = document.createElement("option");
+      option.value = i;
+      option.innerHTML = Scale[i];
+      selector.appendChild(option);
+    }
+  </script>
+</html>
